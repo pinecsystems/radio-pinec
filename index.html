@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1100">
     <title>Radio.95 Pinec | Final Build</title>
+    <!-- Favicon / Tab Logo -->
+    <link rel="icon" type="image/png" href="LOGO.png">
     <style>
         :root {
             --glow-green: #00ff41;
@@ -297,10 +299,10 @@
 
         function rotateAds() {
             adIdx = (adIdx + 1) % adRotations.length;
-            document.getElementById('ad1-text').innerText = adRotations[adIdx];
-            
-            // Note: Side ads (AD2/AD3) remain static with their price tags for now 
-            // as per the latest instruction, but can be added to rotation if needed.
+            const adTextElement = document.getElementById('ad1-text');
+            if (adTextElement) {
+                adTextElement.innerText = adRotations[adIdx];
+            }
         }
 
         function loadTrack(index) {
