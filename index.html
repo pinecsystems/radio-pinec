@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1100">
+    <title>Radio.95 Pinec | Final Build</title>
+    <style>
+        :root {
+            --glow-green: #00ff41;
+            --dim-green: #003300;
+            --lcd-bg: rgba(5, 10, 5, 0.95);
+            --ad-bg: rgba(15, 15, 15, 0.9);
+        }
+
+        body {
+            background-color: #000;
+            margin: 0;
+            padding: 0;
+            min-width: 1100px; 
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: auto;
+            color: white;
+        }
+
+        #earthbound-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            filter: contrast(1.2) brightness(0.6);
+        }
+
+        /* POWER OVERLAY */
+        #power-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+        #power-btn {
+            width: 100px; height: 100px; border-radius: 50%;
+            border: 3px solid var(--glow-green); color: var(--glow-green);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; text-shadow: 0 0 20px var(--glow-green);
+        }
+
+        /* TOP AD BANNER (AD1) */
+        #top-ad-slot {
+            width: 468px;
+            background: var(--ad-bg);
+            border: 1px solid #444;
+            display: flex;
+            flex-direction: column;
+            padding: 4px;
+            margin: 20px auto;
+        }
+        .ad-header { font-size: 9px; color: #666; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px; text-align: center;}
+        .ad-banner {
+            width: 100%; height: 60px; background: #000;
+            display: flex; justify-content: center; align-items: center;
+            position: relative; overflow: hidden; border: 1px solid #333; text-decoration: none;
+        }
+        .ad-banner img { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; z-index: 5; }
+
+        /* THE GRID SYSTEM */
+        #main-layout {
+            display: grid;
+            grid-template-columns: 180px 700px 180px;
+            gap: 20px;
+            justify-content: center;
+            align-items: start;
+            padding: 20px;
+            width: 1100px;
+            margin: 0 auto;
+        }
+
+        .side-rail {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-top: 40px;
+        }
+
+        /* SIDE AD BOXES (AD2 & AD3) */
+        .ad-box {
+            background: #000;
+            border: 1px solid #333;
+            padding: 5px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: all 0.2s;
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .ad-box img { width: 100%; height: 100%; object-fit: cover; position: absolute; z-index: 5; }
+        .ad-box:hover { border-color: var(--glow-green); }
+
+        /* TEXT PLACEHOLDERS */
+        .placeholder-text {
+            color: var(--glow-green);
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+            padding: 10px;
+            text-shadow: 0 0 5px var(--glow-green);
+            line-height: 1.4;
+            z-index: 1;
+        }
+
+        .price-tag {
+            display: block;
+            font-size: 12px;
+            margin-top: 5px;
+            color: #fff;
+        }
+
+        /* THE PLAYER DECK */
+        #deck {
+            background: #1a1a1a;
+            border: 2px solid #333;
+            border-bottom: 15px solid #000;
+            padding: 45px;
+            position: relative;
+            box-shadow: 0 40px 80px rgba(0,0,0,1);
+            box-sizing: border-box;
+        }
+
+        /* LOGO PLACEMENT */
+        .logo-container {
+            position: absolute;
+            top: 10px;
+            left: 45px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-img {
+            height: 24px;
+            width: auto;
+            image-rendering: pixelated;
+        }
+        .branding { 
+            font-size: 0.6rem; 
+            color: #444; 
+            letter-spacing: 6px; 
+            margin: 0;
+        }
+
+        .screen-bezel {
+            background: #000; padding: 15px; border: 4px solid #111;
+            box-shadow: inset 0 0 20px #000; margin-bottom: 30px;
+            margin-top: 10px;
+        }
+
+        .vfd-display {
+            background: var(--lcd-bg); border: 1px solid var(--dim-green);
+            position: relative; overflow: hidden; display: flex; flex-direction: column;
+        }
+
+        #viz-container { height: 140px; border-bottom: 1px solid var(--dim-green); background: rgba(0, 5, 0, 0.8); }
+        #viz-canvas { width: 100%; height: 100%; image-rendering: pixelated; }
+
+        .track-info { padding: 15px 25px; height: 80px; display: flex; flex-direction: column; justify-content: center; }
+        #song-title { font-size: 1.4rem; color: #fff; text-shadow: 0 0 10px var(--glow-green); margin: 0; white-space: nowrap; overflow: hidden; }
+        #artist-name { font-size: 0.8rem; color: var(--glow-green); opacity: 0.8; margin: 6px 0 0 0; letter-spacing: 3px; }
+
+        .controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
+        .btn-analog {
+            background: linear-gradient(180deg, #2a2a2a, #111); border: 1px solid #333; color: #777;
+            padding: 14px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase;
+            cursor: pointer; text-decoration: none; text-align: center; box-shadow: 0 4px 0 #000; transition: 0.1s;
+        }
+        .btn-analog:active { transform: translateY(3px); box-shadow: 0 1px 0 #000; color: var(--glow-green); }
+
+        .scanlines {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 3px; pointer-events: none; z-index: 10;
+        }
+
+        #status-bar { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--dim-green); margin-top: 20px; text-transform: uppercase; }
+        input[type=range] { -webkit-appearance: none; background: transparent; width: 80px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 2px; background: var(--dim-green); }
+        input[type=range]::-webkit-slider-thumb { border: 1px solid var(--glow-green); height: 12px; width: 12px; background: #000; -webkit-appearance: none; margin-top: -5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <canvas id="earthbound-bg"></canvas>
+
+    <div id="power-overlay" onclick="bootRadio()">
+        <div id="power-btn">⏻</div>
+        <p style="margin-top:20px; letter-spacing: 5px; font-size: 0.7rem; color: var(--dim-green);">INITIALIZE SIGNAL</p>
+    </div>
+
+    <!-- AD1 SLOT (TOP BANNER) -->
+    <div id="top-ad-slot">
+        <div class="ad-header">PUBLIC BROADCAST</div>
+        <a href="https://discord.gg/7C8NU8fa2x" target="_blank" class="ad-banner">
+            <img src="AD1.png" alt="AD1" onerror="this.style.display='none'">
+            <div class="placeholder-text" id="ad1-text">WELCOME TO RADIO PINEC</div>
+            <div class="scanlines"></div>
+        </a>
+    </div>
+
+    <div id="main-layout">
+        <!-- LEFT SIDE (AD2) -->
+        <div class="side-rail">
+            <div class="ad-box" onclick="window.open('https://discord.gg/7C8NU8fa2x', '_blank')">
+                <img src="AD2.png" alt="AD2" onerror="this.style.display='none'">
+                <div class="placeholder-text" id="ad2-text">
+                    JOIN THE SERVER<br>
+                    <span class="price-tag">$15.00 / MO</span>
+                </div>
+            </div>
+            <div style="font-size: 9px; color: #222; text-align: center; letter-spacing: 2px;">V.95-X REVISION</div>
+        </div>
+
+        <!-- CENTER PLAYER -->
+        <div id="deck">
+            <div class="logo-container">
+                <img src="LOGO.png" alt="LOGO" class="logo-img" onerror="this.style.display='none'">
+                <h1 class="branding">PINEC AUDIO SYSTEMS // MODEL 95-X</h1>
+            </div>
+            
+            <div class="screen-bezel">
+                <div class="vfd-display">
+                    <div class="scanlines"></div>
+                    <div id="viz-container">
+                        <canvas id="viz-canvas"></canvas>
+                    </div>
+                    <div class="track-info">
+                        <p id="song-title">NO SIGNAL</p>
+                        <p id="artist-name">TUNING...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <a href="https://linktr.ee/PinecSystems" target="_blank" class="btn-analog">Linktree</a>
+                <a href="https://discord.gg/7C8NU8fa2x" target="_blank" class="btn-analog">Discord</a>
+                <button class="btn-analog" onclick="window.open('https://forms.gle/uBHk7PNrrbyAfoc49', '_blank')">Submit Song</button>
+                <button class="btn-analog" id="viz-cycle-btn">VFD BARS</button>
+            </div>
+
+            <div id="status-bar">
+                <span>95.00 MHZ FM STEREO</span>
+                <span style="display: flex; align-items: center; gap: 10px;">VOL <input type="range" id="vol" min="0" max="1" step="0.1" value="0.8"></span>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE (AD3) -->
+        <div class="side-rail">
+            <div class="ad-box" onclick="window.open('https://forms.gle/uBHk7PNrrbyAfoc49', '_blank')">
+                <img src="AD3.png" alt="AD3" onerror="this.style.display='none'">
+                <div class="placeholder-text" id="ad3-text">
+                    PURCHASE YOUR AD TODAY<br>
+                    <span class="price-tag">$15.00 / MO</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="player"></audio>
+
+    <script>
+        const audio = document.getElementById('player');
+        const vizCanvas = document.getElementById('viz-canvas');
+        const vizCtx = vizCanvas.getContext('2d');
+        const bgCanvas = document.getElementById('earthbound-bg');
+        const bgCtx = bgCanvas.getContext('2d');
+        
+        const playlist = [
+            { title: "Set my world on fire", artist: "PINEC", src: "https://files.catbox.moe/738s8p.mp3" },
+            { title: "Broken Transmission", artist: "PINEC", src: "https://files.catbox.moe/3pvltb.mp3" },
+            { title: "Casio Watch", artist: "PINEC", src: "https://files.catbox.moe/rpzcsj.mp3" },
+            { title: "Pinec Tape 1", artist: "PINEC", src: "https://files.catbox.moe/mgm98o.mp3" }
+        ];
+        
+        let currentTrackIndex = 0;
+        let isRunning = false;
+        let time = 0;
+        let vizMode = 0; 
+        const vizModes = ["VFD BARS", "OSCILLOSCOPE", "SPECTRUM"];
+
+        // Ad Rotation Logic
+        const adRotations = [
+            "WELCOME TO RADIO PINEC",
+            "JOIN THE SERVER",
+            "PURCHASE YOUR AD TODAY"
+        ];
+        let adIdx = 0;
+
+        function rotateAds() {
+            adIdx = (adIdx + 1) % adRotations.length;
+            document.getElementById('ad1-text').innerText = adRotations[adIdx];
+            
+            // Note: Side ads (AD2/AD3) remain static with their price tags for now 
+            // as per the latest instruction, but can be added to rotation if needed.
+        }
+
+        function loadTrack(index) {
+            const track = playlist[index];
+            audio.src = track.src;
+            document.getElementById('song-title').innerText = track.title.toUpperCase();
+            document.getElementById('artist-name').innerText = track.artist.toUpperCase();
+            audio.load();
+            audio.play().catch(() => {});
+        }
+
+        audio.onended = () => {
+            currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+            loadTrack(currentTrackIndex);
+        };
+
+        function bootRadio() {
+            document.getElementById('power-overlay').style.display = 'none';
+            isRunning = true;
+            loadTrack(currentTrackIndex);
+            setInterval(rotateAds, 5000);
+            animate();
+        }
+
+        function drawEBBackground() {
+            if (bgCanvas.width !== window.innerWidth || bgCanvas.height !== window.innerHeight) {
+                bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight;
+            }
+            const w = bgCanvas.width, h = bgCanvas.height, t = time * 0.4;
+            const hue1 = (Math.sin(t * 0.1) * 50 + 220); 
+            for (let y = 0; y < h; y += 12) {
+                bgCtx.fillStyle = `hsl(${(hue1 + y/12) % 360}, 60%, 8%)`;
+                bgCtx.fillRect(0, y, w, 12);
+            }
+            bgCtx.globalCompositeOperation = 'lighter';
+            for (let x = 0; x < w; x += 60) {
+                const waveX = Math.cos(t * 0.5 + x * 0.004) * 30;
+                bgCtx.fillStyle = `hsla(260, 80%, 15%, 0.1)`;
+                bgCtx.fillRect(x + waveX, 0, 20, h);
+            }
+            bgCtx.globalCompositeOperation = 'source-over';
+        }
+
+        function drawVisualizer() {
+            if (vizCanvas.width !== vizCanvas.offsetWidth || vizCanvas.height !== vizCanvas.offsetHeight) {
+                vizCanvas.width = vizCanvas.offsetWidth; vizCanvas.height = vizCanvas.offsetHeight;
+            }
+            vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height);
+            const w = vizCanvas.width, h = vizCanvas.height;
+            
+            if (vizMode === 0) {
+                const bars = 20; const barW = (w / bars) - 6;
+                for (let i = 0; i < bars; i++) {
+                    const val = audio.paused ? 5 : Math.abs(Math.sin(time + i * 0.3) * (h/2.2) + Math.random() * 15);
+                    vizCtx.fillStyle = `rgb(0, ${180 + val}, 60)`;
+                    vizCtx.fillRect(i * (barW + 6) + 3, h - val, barW, val);
+                }
+            } else if (vizMode === 1) {
+                vizCtx.beginPath(); vizCtx.strokeStyle = "#00ff41"; vizCtx.lineWidth = 2; vizCtx.moveTo(0, h/2);
+                for (let x = 0; x < w; x += 5) {
+                    const amp = audio.paused ? 2 : (h/4);
+                    vizCtx.lineTo(x, (h/2) + Math.sin(time * 4 + x * 0.06) * amp);
+                }
+                vizCtx.stroke();
+            } else {
+                const bars = 10; const barW = (w / (bars * 2.8));
+                for (let i = 0; i < bars; i++) {
+                    const val = audio.paused ? 12 : Math.abs(Math.sin(time * 0.6 + i * 0.4) * (h/1.8)) + 8;
+                    vizCtx.fillStyle = `rgb(0, 220, 90)`;
+                    vizCtx.fillRect(w/2 + (i * barW * 2.8), h/2 - val/2, barW, val);
+                    vizCtx.fillRect(w/2 - (i * barW * 2.8) - barW, h/2 - val/2, barW, val);
+                }
+            }
+        }
+
+        function animate() {
+            if(!isRunning) return;
+            requestAnimationFrame(animate);
+            time += 0.05;
+            drawEBBackground();
+            drawVisualizer();
+        }
+
+        document.getElementById('viz-cycle-btn').onclick = (e) => {
+            vizMode = (vizMode + 1) % vizModes.length;
+            e.target.innerText = vizModes[vizMode];
+        };
+        document.getElementById('vol').oninput = (e) => audio.volume = e.target.value;
+    </script>
+</body>
+</html>
