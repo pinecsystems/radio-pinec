@@ -173,22 +173,22 @@
     <audio id="player"></audio>
 
     <script type="module">
-        /* --- SPONSOR DATABASE ---
-           To add a new sponsor: 
-           1. Add an object to the correct slot array.
-           2. img: Catbox URL
-           3. link: Destination URL
+        /* --- SPONSOR DATABASE (MANUAL UPDATE) ---
+           slot1: Array of text strings for the top bar ($10)
+           slot2: Array of objects {img: "CATBOX_URL", link: "SITE_URL"} for left rail ($15)
+           slot3: Array of objects {img: "CATBOX_URL", link: "SITE_URL"} for right rail ($15)
         */
         const sponsorData = {
-            slot1: [ // Top Text - $10 One-time
+            slot1: [ 
                 "WELCOME TO RADIO PINEC",
-                "SUPPORT THE SIGNAL"
+                "SUPPORT THE SIGNAL",
+                "STAY CONNECTED"
             ],
-            slot2: [ // Left Side - $15 Monthly
-                // { img: "CATBOX_URL_HERE", link: "URL_HERE" }
+            slot2: [
+                // Example: { img: "https://files.catbox.moe/example.png", link: "https://discord.gg/..." }
             ],
-            slot3: [ // Right Side - $15 Monthly
-                // { img: "CATBOX_URL_HERE", link: "URL_HERE" }
+            slot3: [
+                // Example: { img: "https://files.catbox.moe/example2.png", link: "https://linktr.ee/..." }
             ]
         };
 
@@ -200,7 +200,6 @@
                 const container = document.getElementById(slotId);
                 const list = sponsorData[slotId];
                 if (list.length > 0) {
-                    // Remove placeholders if sponsors exist
                     const placeholder = container.querySelector('.placeholder-text');
                     if (placeholder) placeholder.style.display = 'none';
 
@@ -216,18 +215,16 @@
         }
 
         function rotateAds() {
-            // Side Rails
             ['slot2', 'slot3'].forEach(slotId => {
                 const list = sponsorData[slotId];
                 if (list.length <= 1) return;
                 const container = document.getElementById(slotId);
                 const imgs = container.querySelectorAll('.ad-image');
-                imgs[adIndices[slotId]].classList.remove('active');
+                if (imgs[adIndices[slotId]]) imgs[adIndices[slotId]].classList.remove('active');
                 adIndices[slotId] = (adIndices[slotId] + 1) % list.length;
-                imgs[adIndices[slotId]].classList.add('active');
+                if (imgs[adIndices[slotId]]) imgs[adIndices[slotId]].classList.add('active');
             });
 
-            // Top Banner
             const topList = sponsorData.slot1;
             if (topList.length > 1) {
                 const display = document.getElementById('slot1-text');
