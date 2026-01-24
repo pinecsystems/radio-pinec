@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1100">
-    <title>Radio.95 Pinec | Now Playing </title>
+    <title>Radio.95 Pinec | Now Playing</title>
     <link rel="icon" type="image/png" href="LOGO.png">
     <style>
         :root {
@@ -38,7 +38,6 @@
             font-size: 2.5rem; text-shadow: 0 0 20px var(--glow-green);
         }
 
-        /* Top Slot - Permanent Shoutouts ($10 Tier) */
         #top-ad-slot {
             width: 468px; background: var(--ad-bg); border: 1px solid #444;
             display: flex; flex-direction: column; padding: 4px; margin: 20px auto;
@@ -173,27 +172,34 @@
     <audio id="player"></audio>
 
     <script type="module">
-        /* --- SPONSOR DATABASE (MANUAL UPDATE) ---
-           slot1: Array of text strings for the top bar ($10)
-           slot2: Array of objects {img: "CATBOX_URL", link: "SITE_URL"} for left rail ($15)
-           slot3: Array of objects {img: "CATBOX_URL", link: "SITE_URL"} for right rail ($15)
-        */
+        /* --- SPONSOR DATABASE (MANUAL UPDATE) --- */
         const sponsorData = {
-            slot1: [ 
-                "WELCOME TO RADIO PINEC",
-                "SUPPORT THE SIGNAL",
-                "STAY CONNECTED"
-            ],
-            slot2: [
-                // Example: { img: "https://files.catbox.moe/example.png", link: "https://discord.gg/..." }
-            ],
-            slot3: [
-                // Example: { img: "https://files.catbox.moe/example2.png", link: "https://linktr.ee/..." }
-            ]
+            slot1: ["WELCOME TO RADIO PINEC", "SUPPORT THE SIGNAL", "STAY CONNECTED"],
+            slot2: [],
+            slot3: []
         };
+
+        /* --- PLAYLIST DATABASE (MANUAL UPDATE) --- */
+        let playlist = [
+            { title: "SoulBound", artist: "PINEC", src: "https://files.catbox.moe/9ag9ry.m4a" },
+            { title: "Set my world on fire", artist: "PINEC", src: "https://files.catbox.moe/738s8p.mp3" },
+            { title: "Broken Transmission", artist: "PINEC", src: "https://files.catbox.moe/3pvltb.mp3" },
+            { title: "Casio Watch", artist: "PINEC", src: "https://files.catbox.moe/rpzcsj.mp3" },
+            { title: "Pinec Tape 1", artist: "PINEC", src: "https://files.catbox.moe/mgm98o.mp3" }
+        ];
 
         let adIndices = { slot1: 0, slot2: 0, slot3: 0 };
         let isRunning = false;
+        let currentTrackIndex = 0;
+        let time = 0;
+        let vizMode = 0; 
+        const vizModes = ["VFD BARS", "OSCILLOSCOPE", "SPECTRUM"];
+
+        const audio = document.getElementById('player');
+        const vizCanvas = document.getElementById('viz-canvas');
+        const vizCtx = vizCanvas.getContext('2d');
+        const bgCanvas = document.getElementById('earthbound-bg');
+        const bgCtx = bgCanvas.getContext('2d');
 
         function renderStaticAds() {
             ['slot2', 'slot3'].forEach(slotId => {
@@ -202,7 +208,6 @@
                 if (list.length > 0) {
                     const placeholder = container.querySelector('.placeholder-text');
                     if (placeholder) placeholder.style.display = 'none';
-
                     list.forEach((item, idx) => {
                         const img = document.createElement('img');
                         img.src = item.img;
@@ -237,31 +242,12 @@
             }
         }
 
-        // --- AUDIO ENGINE ---
-        const audio = document.getElementById('player');
-        const vizCanvas = document.getElementById('viz-canvas');
-        const vizCtx = vizCanvas.getContext('2d');
-        const bgCanvas = document.getElementById('earthbound-bg');
-        const bgCtx = bgCanvas.getContext('2d');
-        
-        let playlist = [
-            { title: "Set my world on fire", artist: "PINEC", src: "https://files.catbox.moe/738s8p.mp3" },
-            { title: "Broken Transmission", artist: "PINEC", src: "https://files.catbox.moe/3pvltb.mp3" },
-            { title: "Casio Watch", artist: "PINEC", src: "https://files.catbox.moe/rpzcsj.mp3" },
-            { title: "Pinec Tape 1", artist: "PINEC", src: "https://files.catbox.moe/mgm98o.mp3" }
-        ];
-        
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [array[i], array[j]] = [array[j], array[i]];
             }
         }
-
-        let currentTrackIndex = 0;
-        let time = 0;
-        let vizMode = 0; 
-        const vizModes = ["VFD BARS", "OSCILLOSCOPE", "SPECTRUM"];
 
         function loadTrack(index) {
             const track = playlist[index];
