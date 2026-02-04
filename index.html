@@ -98,7 +98,7 @@
         #song-title { font-size: 1.4rem; color: #fff; text-shadow: 0 0 10px var(--glow-green); margin: 0; white-space: nowrap; overflow: hidden; }
         #artist-name { font-size: 0.8rem; color: var(--glow-green); opacity: 0.8; margin: 6px 0 0 0; letter-spacing: 3px; }
 
-        .controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
+        .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
         .btn-analog {
             background: linear-gradient(180deg, #2a2a2a, #111); border: 1px solid #333; color: #777;
             padding: 14px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase;
@@ -153,7 +153,6 @@
             <div class="controls">
                 <a href="https://linktr.ee/PinecSystems" target="_blank" class="btn-analog">Linktree</a>
                 <a href="https://discord.gg/7C8NU8fa2x" target="_blank" class="btn-analog">Discord</a>
-                <button class="btn-analog" id="submit-btn">Submit Song</button>
                 <button class="btn-analog" id="viz-cycle-btn">VFD BARS</button>
             </div>
             <div id="status-bar">
@@ -344,7 +343,6 @@
             e.target.innerText = vizModes[vizMode];
         };
         document.getElementById('vol').oninput = (e) => audio.volume = e.target.value;
-        document.getElementById('submit-btn').onclick = () => window.open('https://forms.gle/uBHk7PNrrbyAfoc49', '_blank');
         document.getElementById('power-overlay').onclick = () => window.bootRadio();
     </script>
 </body>
