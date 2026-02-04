@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1100">
-    <title>Radio.95 Pinec | Now Playing</title>
+    <title>Radio.95 Pinec | February Sound</title>
     <link rel="icon" type="image/png" href="LOGO.png">
     <style>
         :root {
@@ -181,11 +181,16 @@
 
         /* --- PLAYLIST DATABASE (MANUAL UPDATE) --- */
         let playlist = [
-            { title: "SoulBound", artist: "PINEC", src: "https://files.catbox.moe/9ag9ry.m4a" },
+            { title: "Ascension", artist: "PINEC", src: "https://files.catbox.moe/0bkex3.mp3" },
             { title: "Set my world on fire", artist: "PINEC", src: "https://files.catbox.moe/738s8p.mp3" },
             { title: "Broken Transmission", artist: "PINEC", src: "https://files.catbox.moe/3pvltb.mp3" },
             { title: "Casio Watch", artist: "PINEC", src: "https://files.catbox.moe/rpzcsj.mp3" },
-            { title: "Pinec Tape 1", artist: "PINEC", src: "https://files.catbox.moe/mgm98o.mp3" }
+            { title: "Pinec Tape 1", artist: "PINEC", src: "https://files.catbox.moe/mgm98o.mp3" },
+            { title: "Aya Lin", artist: "PINEC", src: "https://files.catbox.moe/oc7o5r.mp3" },
+            { title: "Opposition", artist: "PINEC", src: "https://files.catbox.moe/pr2yci.mp3" },
+            { title: "Fever Dream", artist: "PINEC", src: "https://files.catbox.moe/aie1da.mp3" },
+            { title: "Eternal Love", artist: "PINEC", src: "https://files.catbox.moe/ujjb3l.mp3" },
+            { title: "SoulBound", artist: "PINEC", src: "https://files.catbox.moe/9ag9ry.m4a" }
         ];
 
         let adIndices = { slot1: 0, slot2: 0, slot3: 0 };
@@ -200,6 +205,40 @@
         const vizCtx = vizCanvas.getContext('2d');
         const bgCanvas = document.getElementById('earthbound-bg');
         const bgCtx = bgCanvas.getContext('2d');
+        
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function loadTrack(index) {
+            const track = playlist[index];
+            audio.src = track.src;
+            document.getElementById('song-title').innerText = track.title.toUpperCase();
+            document.getElementById('artist-name').innerText = track.artist.toUpperCase();
+            audio.load(); audio.play().catch(() => {});
+        }
+
+        audio.onended = () => {
+            currentTrackIndex++;
+            if (currentTrackIndex >= playlist.length) {
+                currentTrackIndex = 0; shuffle(playlist);
+            }
+            loadTrack(currentTrackIndex);
+        };
+
+        window.bootRadio = function() {
+            if (isRunning) return;
+            document.getElementById('power-overlay').style.display = 'none';
+            isRunning = true;
+            shuffle(playlist);
+            renderStaticAds();
+            loadTrack(currentTrackIndex);
+            setInterval(rotateAds, 8000);
+            animate();
+        };
 
         function renderStaticAds() {
             ['slot2', 'slot3'].forEach(slotId => {
@@ -241,40 +280,6 @@
                 }, 800);
             }
         }
-
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-
-        function loadTrack(index) {
-            const track = playlist[index];
-            audio.src = track.src;
-            document.getElementById('song-title').innerText = track.title.toUpperCase();
-            document.getElementById('artist-name').innerText = track.artist.toUpperCase();
-            audio.load(); audio.play().catch(() => {});
-        }
-
-        audio.onended = () => {
-            currentTrackIndex++;
-            if (currentTrackIndex >= playlist.length) {
-                currentTrackIndex = 0; shuffle(playlist);
-            }
-            loadTrack(currentTrackIndex);
-        };
-
-        window.bootRadio = function() {
-            if (isRunning) return;
-            document.getElementById('power-overlay').style.display = 'none';
-            isRunning = true;
-            shuffle(playlist);
-            renderStaticAds();
-            loadTrack(currentTrackIndex);
-            setInterval(rotateAds, 8000);
-            animate();
-        };
 
         function drawEBBackground() {
             if (bgCanvas.width !== window.innerWidth || bgCanvas.height !== window.innerHeight) {
